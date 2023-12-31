@@ -7,6 +7,8 @@ TagManager:
   - NormalGun
   - GrappleGun
   - VacuumGun
+  - Bullet
+  - Box
   layers:
   - Default
   - TransparentFX
