@@ -52,7 +52,7 @@
         private Gun secondaryGun;
 
         //Gun objects
-        [SerializeField] GameObject normalGun;
+        // [SerializeField] GameObject normalGun;
         [SerializeField] GameObject vacuumGun;
         [SerializeField] GameObject grappleGun;
 
@@ -74,50 +74,54 @@
             secondaryGun = null;
         }
 
-        // private void OnTriggerEnter2D(UnityEngine.Collider2D other)
-        // {
-        //     if (other.gameObject.GetComponent<Gun>() != null){
-        //         equippedGun = other.GetComponent<Gun>();
-        //         other.transform.position = new Vector3(transform.position.x + 0.5f, transform.position.y, transform.position.z - 0.1f);
-        //         other.gameObject.transform.SetParent(gameObject.transform);
-        //     }
-            
-        //     Debug.Log("khbjashkujfb");
-        // }
-
         private void DisableGuns(){
-
-            if (equippedGun == null){
-                for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
+            for(int i = 0; i < aimPivot.childCount; i++){
+                if (aimPivot.GetChild(i).GetComponent<Gun>() == equippedGun){
+                    aimPivot.GetChild(i).gameObject.SetActive(true);
+                }else{
                     aimPivot.GetChild(i).gameObject.SetActive(false);
                 }
-            }else if (equippedGun is NormalGun){
-                aimPivot.GetChild((int)Guns.NormalGun).gameObject.SetActive(true);
-                for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
-                    if (i != (int)Guns.NormalGun){
-                        aimPivot.GetChild(i).gameObject.SetActive(false);
-                    }
-                }
-            }else if (equippedGun is GrappleGun){
-                aimPivot.GetChild((int)Guns.GrappleGun).gameObject.SetActive(true);
-                for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
-                    if (i != (int)Guns.GrappleGun){
-                        aimPivot.GetChild(i).gameObject.SetActive(false);
-                    }
-                }
-            }else if (equippedGun is VacuumGun){
-                aimPivot.GetChild((int)Guns.VacuumGun).gameObject.SetActive(true);
-                for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
-                    if (i != (int)Guns.VacuumGun){
-                        aimPivot.GetChild(i).gameObject.SetActive(false);
-                    }
-                }
             }
+
+
+            // if (equippedGun == null){
+            //     for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
+            //         aimPivot.GetChild(i).gameObject.SetActive(false);
+            //     }            
+            // }else if (equippedGun is NormalGun){
+            //     aimPivot.GetChild((int)Guns.NormalGun).gameObject.SetActive(true);
+            //     for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
+            //         if (i != (int)Guns.NormalGun){
+            //             aimPivot.GetChild(i).gameObject.SetActive(false);
+            //         }
+            //     }
+            // }else if (equippedGun is GrappleGun){
+            //     aimPivot.GetChild((int)Guns.GrappleGun).gameObject.SetActive(true);
+            //     for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
+            //         if (i != (int)Guns.GrappleGun){
+            //             aimPivot.GetChild(i).gameObject.SetActive(false);
+            //         }
+            //     }
+            // }else if (equippedGun is VacuumGun){
+            //     aimPivot.GetChild((int)Guns.VacuumGun).gameObject.SetActive(true);
+            //     for (int i = 0; i < Enum.GetNames(typeof(Guns)).Length; i++){
+            //         if (i != (int)Guns.VacuumGun){
+            //             aimPivot.GetChild(i).gameObject.SetActive(false);
+            //         }
+            //     }
+            // }
         }
         private void Update(){ 
             Debug.Log(equippedGun + "|" + primaryGun + ", " + secondaryGun);
             
             DisableGuns();
+
+            //shoot
+            if (Input.GetMouseButtonDown(0)) {
+                equippedGun.Fire();
+            }
+            
+
 
             //pickup    
             if (canPickup){
@@ -200,26 +204,63 @@
 
         }
 
-        public void Pickup(string tag){
-            if (tag == "NormalGun"){
-                if (primaryGun == null){
-                    primaryGun = normalGun.GetComponent<Gun>();
-                }else{
-                    if (secondaryGun == null){
-                        secondaryGun = normalGun.GetComponent<Gun>();
+        private bool HasGun(GameObject gun){
+            for(int i = 0; i < aimPivot.childCount; i++){
+                if (aimPivot.GetChild(i).gameObject == gun){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        public void Pickup(GameObject gun){
+            if (gun.GetComponent<Gun>() is NormalGun){
+                
+                if (HasGun(gun)){
+                    GameObject normalGun = gun;
+                    if (primaryGun == null){
+                        primaryGun = normalGun.GetComponent<Gun>();
                     }else{
-                        DropEquippedGun();
-                        if (equippedGun == primaryGun){
-                            primaryGun = normalGun.GetComponent<Gun>();
-                            equippedGun = primaryGun;
-                        }else{
+                        if (secondaryGun == null){
                             secondaryGun = normalGun.GetComponent<Gun>();
-                            equippedGun = secondaryGun;
+                        }else{
+                            DropEquippedGun();
+                            if (equippedGun == primaryGun){
+                                primaryGun = normalGun.GetComponent<Gun>();
+                                equippedGun = primaryGun;
+                            }else{
+                                secondaryGun = normalGun.GetComponent<Gun>();
+                                equippedGun = secondaryGun;
+                            }
                         }
                     }
+                    equippedGun = normalGun.GetComponent<Gun>();
+
+                }else{
+                    GameObject normalGun = Instantiate(gun, aimPivot);
+                    if (primaryGun == null){
+                        primaryGun = normalGun.GetComponent<Gun>();
+                    }else{
+                        if (secondaryGun == null){
+                            secondaryGun = normalGun.GetComponent<Gun>();
+                        }else{
+                            DropEquippedGun();
+                            if (equippedGun == primaryGun){
+                                primaryGun = normalGun.GetComponent<Gun>();
+                                equippedGun = primaryGun;
+                            }else{
+                                secondaryGun = normalGun.GetComponent<Gun>();
+                                equippedGun = secondaryGun;
+                            }
+                        }
+                    }
+                    equippedGun = normalGun.GetComponent<Gun>();
+
                 }
-                equippedGun = normalGun.GetComponent<Gun>();
-            }else if(tag == "GrappleGun"){
+            }else if(gun.GetComponent<Gun>() is GrappleGun){
+                GameObject grappleGun = Instantiate(this.grappleGun, aimPivot);
+
                 if (primaryGun == null){
                     primaryGun = grappleGun.GetComponent<Gun>();
                 }else{
@@ -237,7 +278,9 @@
                     }
                 }
                 equippedGun = grappleGun.GetComponent<Gun>();
-            }else if(tag == "VacuumGun"){
+            }else if(gun.GetComponent<Gun>() is VacuumGun){
+                GameObject vacuumGun = Instantiate(this.vacuumGun, aimPivot);
+
                 if (primaryGun == null){
                     primaryGun = vacuumGun.GetComponent<Gun>();
                 }else{
@@ -255,7 +298,7 @@
                     }
                 }
                 equippedGun = vacuumGun.GetComponent<Gun>();
-            }            
+            }
         }
 
     

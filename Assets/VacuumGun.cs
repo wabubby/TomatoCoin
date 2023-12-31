@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class VacuumGun : Gun
 {
-    // Start is called before the first frame update
-    // void Start()
-    // {
-        
-    // }
+    protected override void Start(){
+        magazineCount = 5;
+        fireRate = 2.5f;
+        base.Start();
+    }
 
     // Update is called once per frame
     // void Update()

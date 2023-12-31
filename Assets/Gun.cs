@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
-    [SerializeField] protected GameObject bulletTrail;
+    [SerializeField] protected GameObject bullet;
     protected int ammo;
     protected int magazineCount;
     protected Vector3 mousePos;
@@ -18,12 +18,29 @@ public class Gun : MonoBehaviour
     public bool canShoot;
 
     // Start is called before the first frame update
-    protected void Start()
+    protected virtual void Start()
     {
         nextAvailFire = Time.time;
         aimTransform = transform.parent;
         ammo = magazineCount;
-        // muzzle = transform.GetChild(0).transform;
+        muzzle = transform.GetChild(0).transform;
+    }
+
+    public virtual void Fire() {
+        if(Time.time >= nextAvailFire && ammo > 0){
+            Vector3 muzzlePos = muzzle.transform.position;
+            Vector2 shootDirection = muzzle.right;
+
+            float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
+
+            var bullet = Instantiate(this.bullet, muzzlePos, Quaternion.Euler(0f, 0f, angle));
+            bullet.GetComponent<Rigidbody2D>().AddForce(shootDirection * 50, ForceMode2D.Impulse);
+
+            ammo--;
+            nextAvailFire = Time.time + 1/fireRate;
+        }else{
+            Debug.Log("outta ammo");
+        }
     }
 
     // Update is called once per frame
@@ -43,5 +60,9 @@ public class Gun : MonoBehaviour
             aimLocalScale.y = 1f;
         }
         aimTransform.localScale = aimLocalScale;
+    }
+
+    public void SetAmmo(int num){
+        ammo = num;
     }
 }

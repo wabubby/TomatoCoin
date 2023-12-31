@@ -5,9 +5,11 @@ using UnityEngine;
 public class Item : MonoBehaviour
 {
     private int pickupDist = 2;
+    [SerializeField] GameObject item;
     void Start()
     {
-        
+       
+       
     }
 
     // Update is called once per frame
@@ -19,7 +21,7 @@ public class Item : MonoBehaviour
                 PlayerController.instance.isPickingUp = false;
                 transform.SetParent(PlayerController.instance.transform);
                 transform.position = PlayerController.instance.transform.position;
-                PlayerController.instance.Pickup(gameObject.tag);
+                PlayerController.instance.Pickup(item);
                 gameObject.SetActive(false);
             }
         }
